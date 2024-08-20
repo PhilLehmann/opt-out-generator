@@ -1,8 +1,9 @@
 <?php
 
 defined('ABSPATH') or die('');
+defined('OPT_OUT_GENERATOR_PROCESS_ID') or die('');
 
-class patientenaktenbefreier_Validator {
+class opt_out_generator_Validator {
 	
 	private static $errors = null;
 	
@@ -70,8 +71,8 @@ class patientenaktenbefreier_Validator {
 		$isPrivate = false;
 		if($krankenkassenName !== null) {
 			require_once __DIR__ . '/../includes/krankenkassen.php';
-			$patientenaktenbefreier_krankenkassen = patientenaktenbefreier_Krankenkassenliste::getInstance();
-			$krankenkasse = $patientenaktenbefreier_krankenkassen->get($krankenkassenName);
+			$opt_out_generator_krankenkassen = opt_out_generator_Krankenkassenliste::getInstance();
+			$krankenkasse = $opt_out_generator_krankenkassen->get($krankenkassenName);
 			if($krankenkasse !== null) {
 				$isPrivate = $krankenkasse->isPrivate;
 			}

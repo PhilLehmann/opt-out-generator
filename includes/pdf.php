@@ -2,16 +2,23 @@
 
 defined('ABSPATH') or die('');
 
-function patientenaktenbefreier_pdf() {
+function opt_out_generator_pdf() {
+
+    define('OPT_OUT_GENERATOR_PROCESS_ID', opt_out_generator_get_process($_POST));
+    if(OPT_OUT_GENERATOR_PROCESS_ID == '') {
+        die();
+    }
 
 	require_once __DIR__ . '/../libs/tcpdf/tcpdf.php';
     
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     	
+	$subject = esc_html(get_option('opt_out_generator_mail_subject_' . OPT_OUT_GENERATOR_PROCESS_ID));
+
     $pdf->SetCreator(PDF_CREATOR);
     $pdf->SetAuthor('AK Vorratsdatenspeicherung');
-    $pdf->SetTitle('Datenschutzauskunft');
-    $pdf->SetSubject('Datenschutzauskunft');
+    $pdf->SetTitle($subject);
+    $pdf->SetSubject($subject);
     
 	$pdf->SetMargins(22, 27, 20);
     $pdf->SetPrintHeader(false);
@@ -19,8 +26,8 @@ function patientenaktenbefreier_pdf() {
     $pdf->AddPage();
 
 	require_once __DIR__ . '/krankenkassen.php';
-	$patientenaktenbefreier_krankenkassen = patientenaktenbefreier_Krankenkassenliste::getInstance();
-	$krankenkasse = $patientenaktenbefreier_krankenkassen->getFromPost();
+	$opt_out_generator_krankenkassen = opt_out_generator_Krankenkassenliste::getInstance();
+	$krankenkasse = $opt_out_generator_krankenkassen->getFromPost();
 	
 	if(!isset($_POST['gp_name']) || !isset($_POST['gp_strasse']) || !isset($_POST['gp_plz']) || !isset($_POST['gp_ort'])) {
 		wp_die('Einer der Parameter "gp_name", "gp_strasse", "gp_plz", oder "gp_ort" fehlt.');
@@ -30,7 +37,6 @@ function patientenaktenbefreier_pdf() {
     $gp_strasse = esc_html($_POST['gp_strasse']);
     $gp_plz = esc_html($_POST['gp_plz']);
     $gp_ort = esc_html($_POST['gp_ort']);
-	$subject = esc_html(get_option('patientenaktenbefreier_mail_subject', 'Datenschutzauskunft'));
 
     $html = <<<TXT
 	<br/>
@@ -54,7 +60,7 @@ function patientenaktenbefreier_pdf() {
 	<br/>
 TXT;
 	
-	$html .= wpautop(patientenaktenbefreier_get_mail_text($_POST, 'pdf'));
+	$html .= wpautop(opt_out_generator_get_mail_text($_POST, 'pdf'));
 
     $pdf->writeHTML($html, true, false, true, false, '');
     
@@ -62,5 +68,5 @@ TXT;
 	$pdf->Line(7, 105, 11, 105, $lineStyle);
 	$pdf->Line(7, 210, 11, 210, $lineStyle);
 	
-    $pdf->Output('Auskunft.pdf', 'I');
+    $pdf->Output($subject . '.pdf', 'I');
 }

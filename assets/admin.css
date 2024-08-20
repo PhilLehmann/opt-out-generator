@@ -1,0 +1,7 @@
+.form-table.processes td {
+    padding-left: 0;
+}
+
+.form-table.processes select {
+    margin-right: 10px;
+}

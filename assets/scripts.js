@@ -1,14 +1,17 @@
 
 jQuery(document).ready(function($) {
 	// buttons
-	$('.form.button').click(function() {
-		window.location = "?gp=form";
-	});
 	$('.infos.button').click(function() {
 		window.location = "?gp=infos";
 	});
-	$('.good-bye.button').click(function() {
-		window.location = "?gp=good-bye";
+	$('.form.button').click(function() {
+		window.location = "?gp=form";
+	});
+	$('.submit.button').click(function() {
+		this.form.submit();
+	});
+    $('.mail.button').click(function() {
+        window.open("mailto:" + $('.mail-to').text() + "?subject=" + encodeURIComponent($('.mail-subject').text().trim()) + "&body=" + encodeURIComponent($('.mail-text').text().trim()));
 	});
 
 	// form
@@ -21,10 +24,5 @@ jQuery(document).ready(function($) {
 		} else {
 			$('.other.fields').slideUp("slow");			
 		}		
-	});
-	
-	// result
-    $('.submit-mail').click(function() {
-        window.open("mailto:" + $('.mail-to').text() + "?subject=" + encodeURIComponent($('.mail-subject').text().trim()) + "&body=" + encodeURIComponent($('.mail-text').text().trim()));
 	});
 });
