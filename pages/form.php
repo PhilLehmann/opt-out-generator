@@ -3,6 +3,9 @@
 defined('ABSPATH') or die('');
 defined('OPT_OUT_GENERATOR_PROCESS_ID') or die('');
 
+$processes = get_option('opt_out_generator_processes', []);
+$process = $processes[OPT_OUT_GENERATOR_PROCESS_ID];
+
 require_once __DIR__ . '/../includes/validator.php';
 
 function opt_out_generator_getError($name) {
@@ -67,7 +70,7 @@ if(isset($_POST['gp_kasse'])) {
         
         <div class="actions">
             <input class="infos button" type="button" value="&lt; Zurück" />
-            <input class="submit button" type="submit" value="<?=esc_attr(get_option('opt_out_generator_form_button_' . OPT_OUT_GENERATOR_PROCESS_ID))?>" />
+            <input class="submit button" type="submit" value="<?=esc_attr($process['form_button'])?>" />
         </div>
 	</form>
 	<p>

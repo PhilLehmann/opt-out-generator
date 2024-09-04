@@ -5,6 +5,7 @@ defined('ABSPATH') or die('');
 class opt_out_generator_Krankenkassenliste {
 	static $instance = null;
 	private $data = [];
+    private $isSorted = false;
 	
 	static function getInstance() {
 		return self::$instance;
@@ -14,6 +15,10 @@ class opt_out_generator_Krankenkassenliste {
 		array_push($this->data, new opt_out_generator_Krankenkasse($name, $plz, $ort, $strasse, $email, $isPrivate));
 	}
 	
+    function getNames() {
+        return array_column($this->data, 'name');
+    }
+
 	function get($name) {
 		foreach($this->data as $krankenkasse) {
 			if($krankenkasse->name == $name) {
@@ -46,9 +51,16 @@ class opt_out_generator_Krankenkassenliste {
 		return new opt_out_generator_Krankenkasse($_POST['gp_kk_name'], $_POST['gp_kk_plz'], $_POST['gp_kk_ort'], $_POST['gp_kk_strasse'], $_POST['gp_kk_mail'], true);
 	}
 	
-	function printOptions() {
+	function printOptions($selectedNames = []) {
+        if(!$this->isSorted) {
+            usort($this->data, function($a, $b) {
+                return strcmp($a->name, $b->name);
+            });
+            $this->isSorted = true;
+        }
+
 		foreach($this->data as $krankenkasse) {
-			echo '<option value="' . esc_attr($krankenkasse->name) . '">' . esc_html($krankenkasse->name) . '</option>';
+			echo '<option value="' . esc_attr($krankenkasse->name) . '" class="' . (in_array($krankenkasse->name, $selectedNames) ? 'selected' : '') . '">' . esc_html($krankenkasse->name) . '</option>';
 		}
 	}
 }
@@ -71,7 +83,7 @@ class opt_out_generator_Krankenkasse {
     }
 	
 	function canSendLetter() {
-		return !empty($this->plz) && !empty($this->ort) && !empty($this->strasse);
+		return !empty($this->plz) && !empty($this->ort);
 	}
 	
 	function canSendMail() {
@@ -220,7 +232,7 @@ $opt_out_generator_krankenkassen->add('Provinzial Krankenversicherung Hannover A
 $opt_out_generator_krankenkassen->add('R+V Krankenversicherung Aktiengesellschaft', '65189', 'Wiesbaden', 'Raiffeisenplatz 1', 'ruv@ruv.de', true);
 $opt_out_generator_krankenkassen->add('SIGNAL IDUNA Krankenversicherung a.G.', '44139', 'Dortmund', 'Joseph-Scherer-Straße 3', '', true);
 $opt_out_generator_krankenkassen->add('SONO Krankenversicherung a.G.', '46242', 'Bottrop', 'Westring 73', '', true);
-$opt_out_generator_krankenkassen->add('St. Martinus Priesterverein der Diözese Rottenburg-Stuttgart- Kranken- und Sterbekasse (KSK, true) - Versicherungsverein auf Gegenseitigkeit (VVaG, true)', '70178', 'Stuttgart', 'Hohenzollernstraße 23', '', true);
+$opt_out_generator_krankenkassen->add('St. Martinus Priesterverein der Diözese Rottenburg-Stuttgart- Kranken- und Sterbekasse (KSK) - Versicherungsverein auf Gegenseitigkeit (VVaG)', '70178', 'Stuttgart', 'Hohenzollernstraße 23', '', true);
 $opt_out_generator_krankenkassen->add('Süddeutsche Krankenversicherung a.G.', '70736', 'Fellbach', 'Raiffeisenplatz 5', '', true);
 $opt_out_generator_krankenkassen->add('UNION KRANKENVERSICHERUNG AKTIENGESELLSCHAFT', '66123', 'Saarbrücken', 'Peter-Zimmer-Straße 2', '', true);
 $opt_out_generator_krankenkassen->add('uniVersa Krankenversicherung a.G.', '90489', 'Nürnberg', 'Sulzbacher Straße 1-7', '', true);

@@ -1,7 +1,51 @@
-.form-table.processes td {
+
+body.settings_page_opt_out_generator_options .button {
+    margin-right: 7px;
+}
+body.settings_page_opt_out_generator_options .button .dashicons {
+    line-height: 1.4;
+}
+body.settings_page_opt_out_generator_options .button.button-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+body.settings_page_opt_out_generator_options .button.button-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+body.settings_page_opt_out_generator_options .form-table.processes {
+    margin-bottom: 7px;
+}
+
+body.settings_page_opt_out_generator_options .form-table.processes td {
     padding-left: 0;
 }
 
-.form-table.processes select {
+body.settings_page_opt_out_generator_options .form-table.processes select {
     margin-right: 10px;
+}
+
+body.settings_page_opt_out_generator_options label[for="opt_out_generator_send_mail"] {
+    cursor: pointer;
+}
+
+body.settings_page_opt_out_generator_options .select2 {
+    margin-right: 5px;
+}
+body.settings_page_opt_out_generator_options .select2-container .selected {
+    font-weight: bold;
+}
+
+body.settings_page_opt_out_generator_options .link {
+    cursor: pointer;
+}
+
+body.settings_page_opt_out_generator_options .krankenkassen-name {
+    position: relative;
+    top: 25px;
+}
+
+body.settings_page_opt_out_generator_options .hidden {
+	display: none;
 }

@@ -3,6 +3,9 @@
 defined('ABSPATH') or die('');
 defined('OPT_OUT_GENERATOR_PROCESS_ID') or die('');
 
+$processes = get_option('opt_out_generator_processes', []);
+$process = $processes[OPT_OUT_GENERATOR_PROCESS_ID];
+
 $showResult = true;
 
 require_once __DIR__ . '/../includes/validator.php';
@@ -21,8 +24,8 @@ if($showResult) {
 
 	if(!isset($_SESSION['opt_out_generator_session_request_counted_' . OPT_OUT_GENERATOR_PROCESS_ID])) {
 		$_SESSION['opt_out_generator_session_request_counted_' . OPT_OUT_GENERATOR_PROCESS_ID] = 1;
-		$counter = get_option('opt_out_generator_counter_' . OPT_OUT_GENERATOR_PROCESS_ID, 0);
-		update_option('opt_out_generator_counter_' . OPT_OUT_GENERATOR_PROCESS_ID, $counter + 1);
+        $process['counter']++;
+        update_option('opt_out_generator_processes', $processes);
 	}
 
 	require_once __DIR__ . '/../includes/krankenkassen.php';
@@ -39,19 +42,22 @@ if($showResult) {
 	</p>
 	
 	<p>
-		<b><?=esc_html(get_option('opt_out_generator_mail_subject_' . OPT_OUT_GENERATOR_PROCESS_ID))?></b>
+		<b><?=esc_html($process['mail_subject'])?></b>
 	</p>
 
-	<?=wpautop(opt_out_generator_get_mail_text($_POST, 'screen'))?>
-
+	<div class="mail-text">
+		<?=wpautop(opt_out_generator_get_mail_text($_POST))?>
+	</div>
+    <?php
+    if(isset($process['krankenkassen_hinweise'][$krankenkasse->name]) && trim($process['krankenkassen_hinweise'][$krankenkasse->name]) !== '') {
+        echo '<div class="krankenkasse-hinweis"><p><b>Hinweise zur Krankenkasse</b></p><p>' . $process['krankenkassen_hinweise'][$krankenkasse->name] . '</p></div>';
+    }
+    ?>
 	<div class="mail-to hidden">
 		<?=esc_html($krankenkasse->email)?>
 	</div>
 	<div class="mail-subject hidden">
-		<?=esc_html(get_option('opt_out_generator_mail_subject_' . OPT_OUT_GENERATOR_PROCESS_ID))?>
-	</div>
-	<div class="mail-text hidden">
-		<?=wpautop(opt_out_generator_get_mail_text($_POST, 'mail'))?>
+		<?=esc_html($process['mail_subject'])?>
 	</div>
 
 	<div class="actions">
@@ -62,7 +68,7 @@ if($showResult) {
                                                  '<input type="hidden" name="process" value="' . OPT_OUT_GENERATOR_PROCESS_ID . '" />
                                                   <input class="submit button" type="button" value="PDF öffnen" />');
 		}
-		if($krankenkasse->canSendMail()) {
+		if($krankenkasse->canSendMail() && $process['send_mail'] === 1) {
 		?>
 		<form><input class="mail button" type="button" value="Mail öffnen" /></form>
 		<?php

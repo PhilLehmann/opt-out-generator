@@ -8,12 +8,15 @@ function opt_out_generator_pdf() {
     if(OPT_OUT_GENERATOR_PROCESS_ID == '') {
         die();
     }
+    
+    $processes = get_option('opt_out_generator_processes', []);
+    $process = $processes[OPT_OUT_GENERATOR_PROCESS_ID];
 
 	require_once __DIR__ . '/../libs/tcpdf/tcpdf.php';
     
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     	
-	$subject = esc_html(get_option('opt_out_generator_mail_subject_' . OPT_OUT_GENERATOR_PROCESS_ID));
+	$subject = esc_html($process['mail_subject']);
 
     $pdf->SetCreator(PDF_CREATOR);
     $pdf->SetAuthor('AK Vorratsdatenspeicherung');
@@ -60,7 +63,7 @@ function opt_out_generator_pdf() {
 	<br/>
 TXT;
 	
-	$html .= wpautop(opt_out_generator_get_mail_text($_POST, 'pdf'));
+	$html .= wpautop(opt_out_generator_get_mail_text($_POST));
 
     $pdf->writeHTML($html, true, false, true, false, '');
     

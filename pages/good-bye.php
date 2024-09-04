@@ -3,11 +3,12 @@
 defined('ABSPATH') or die('');
 defined('OPT_OUT_GENERATOR_PROCESS_ID') or die('');
 
+$processes = get_option('opt_out_generator_processes', []);
+$process = $processes[OPT_OUT_GENERATOR_PROCESS_ID];
+
 ?>
 <div class="opt-out-generator good-bye">
-	<?php
-        echo wpautop(get_option('opt_out_generator_good_bye_text_' . OPT_OUT_GENERATOR_PROCESS_ID));
-    ?>
+	<?=do_shortcode(wpautop($process['good_bye_text']))?>
     
 	<div class="actions">
         <?php
