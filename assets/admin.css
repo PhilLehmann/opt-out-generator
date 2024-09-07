@@ -26,7 +26,7 @@ body.settings_page_opt_out_generator_options .form-table.processes select {
     margin-right: 10px;
 }
 
-body.settings_page_opt_out_generator_options label[for="opt_out_generator_send_mail"] {
+body.settings_page_opt_out_generator_options label[for] {
     cursor: pointer;
 }
 

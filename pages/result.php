@@ -3,7 +3,7 @@
 defined('ABSPATH') or die('');
 defined('OPT_OUT_GENERATOR_PROCESS_ID') or die('');
 
-$processes = get_option('opt_out_generator_processes', []);
+$processes = opt_out_generator_get_processes();
 $process = $processes[OPT_OUT_GENERATOR_PROCESS_ID];
 
 $showResult = true;
@@ -24,14 +24,13 @@ if($showResult) {
 
 	if(!isset($_SESSION['opt_out_generator_session_request_counted_' . OPT_OUT_GENERATOR_PROCESS_ID])) {
 		$_SESSION['opt_out_generator_session_request_counted_' . OPT_OUT_GENERATOR_PROCESS_ID] = 1;
-        $process['counter']++;
+        $processes[OPT_OUT_GENERATOR_PROCESS_ID]['counter']++;
         update_option('opt_out_generator_processes', $processes);
 	}
 
 	require_once __DIR__ . '/../includes/krankenkassen.php';
 	$opt_out_generator_krankenkassen = opt_out_generator_Krankenkassenliste::getInstance();
 	$krankenkasse = $opt_out_generator_krankenkassen->getFromPost();
-
 ?>
 <div class="opt-out-generator result">
 	<p>
@@ -50,7 +49,7 @@ if($showResult) {
 	</div>
     <?php
     if(isset($process['krankenkassen_hinweise'][$krankenkasse->name]) && trim($process['krankenkassen_hinweise'][$krankenkasse->name]) !== '') {
-        echo '<div class="krankenkasse-hinweis"><p><b>Hinweise zur Krankenkasse</b></p><p>' . $process['krankenkassen_hinweise'][$krankenkasse->name] . '</p></div>';
+        echo '<div class="opt-out-generator-hinweis hidden auto-show"><p><b>' . $process['krankenkassen_hinweis_titel'] . '</b></p>' . wpautop($process['krankenkassen_hinweise'][$krankenkasse->name]) . '</div>';
     }
     ?>
 	<div class="mail-to hidden">
@@ -73,10 +72,14 @@ if($showResult) {
 		<form><input class="mail button" type="button" value="Mail öffnen" /></form>
 		<?php
 		}
-		echo opt_out_generator_get_post_form('action="?gp=good-bye"', '<input class="submit button" type="button" value="Weitere Infos" />');
+		echo opt_out_generator_get_post_form('action="?gp=good-bye"', '<input class="submit button" type="button" value="Weitere Infos &gt;" />');
 		?>
 	</div>
 </div>
+<script type="text/javascript">
+    var formData = <?=json_encode($_POST)?>;
+    localStorage.setItem("opt-out-generator-form-data", JSON.stringify(formData));
+</script>
 
 <?php
 }

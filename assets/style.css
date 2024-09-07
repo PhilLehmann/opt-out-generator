@@ -29,6 +29,64 @@
     color: #9f3a38;
     border: 1px solid #9f3a38;
 }
+.opt-out-generator div.opt-out-generator-hinweis {
+    background-color: #2185d0;
+    color: #fff;
+    margin: 1rem -1rem;
+    padding: 1rem 1rem;
+    border-radius: .3rem;
+}
+.opt-out-generator div.opt-out-generator-hinweis > p:first-child {
+    margin-top: 0;
+}
+.opt-out-generator div.opt-out-generator-hinweis > p:last-child {
+    margin-bottom: 0;
+}
+.opt-out-generator div.opt-out-generator-hinweis .checkmark {
+    position:relative;
+    display:inline-block;
+    width: 1.5em;
+}
+.opt-out-generator div.opt-out-generator-hinweis .checkmark:after{
+    content: '';
+    display: block;
+    width: .4em;
+    height: .8em;
+    border: solid #090;
+    border-width: 0 .4em .4em 0;
+    transform: rotate(45deg);
+    margin-left: .5em;
+}
+.opt-out-generator div.opt-out-generator-hinweis .crossmark {
+    width: 1em;
+    position:relative;
+    display:inline-block;
+}
+.opt-out-generator div.opt-out-generator-hinweis .crossmark:after {
+    position: absolute;
+    content: '';
+    display: block;
+    width: 1em;
+    height: 0px;
+    border: solid #E00;
+    border-width: 0 0px .4em 0;
+    transform: rotate(45deg);
+    left: 0;
+    top: -.5em;
+}
+.opt-out-generator div.opt-out-generator-hinweis .crossmark:before {
+    position: absolute;
+    content: '';
+    display: block;
+    width: 1em;
+    height: 0px;
+    border: solid #E00;
+    border-width: 0 0px .4em 0;
+    transform: rotate(-45deg);
+    left: 0;
+    top: -.5em;
+}
+
 
 .opt-out-generator .actions {
     display: flex;

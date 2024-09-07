@@ -3,13 +3,13 @@
 defined('ABSPATH') or die('');
 defined('OPT_OUT_GENERATOR_PROCESS_ID') or die('');
 
-$processes = get_option('opt_out_generator_processes', []);
+$processes = opt_out_generator_get_processes();
 $process = $processes[OPT_OUT_GENERATOR_PROCESS_ID];
 
 ?>
 <div class="opt-out-generator infos">
 	<?php
-	
+
 	echo do_shortcode(wpautop($process['info_text']));
 
 	if($process['counter'] >= $process['threshold']) {

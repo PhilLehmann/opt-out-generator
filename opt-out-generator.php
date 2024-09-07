@@ -18,7 +18,7 @@ defined('ABSPATH') or die('');
 // Main entry point (shortcode)
 
 function opt_out_generator_router($attrs) {
-    $processes = get_option('opt_out_generator_processes', []);
+    $processes = opt_out_generator_get_processes();
     if(!isset($attrs[0]) || !ctype_digit($attrs[0]) || count($processes) <= intval($attrs[0])) {
         return 'Dem Shortcode wurde keine gültige Opt-Out-Generator Verfahrens-ID mitgegeben.';
     }
@@ -64,7 +64,7 @@ function opt_out_generator_get_mail_text($params) {
 	}
 	$tokens['[versichertennummer]'] = esc_html($params['gp_nummer']);
 
-    $processes = get_option('opt_out_generator_processes', []);
+    $processes = opt_out_generator_get_processes();
     $mail_text = $processes[OPT_OUT_GENERATOR_PROCESS_ID]['mail_text'];
 	return str_replace(array_keys($tokens), array_values($tokens), $mail_text);
 }
@@ -86,11 +86,15 @@ function opt_out_generator_get_options_url($params = []) {
 	);
 }
 
-function opt_out_generator_get_process($arr = null) {
+function opt_out_generator_get_processes() {
+    return stripslashes_deep(get_option('opt_out_generator_processes', []));
+}
+
+function opt_out_generator_get_process_id($arr = null) {
     if($arr == null) {
         $arr = $_GET;
     }
-    $processes = get_option('opt_out_generator_processes', []);
+    $processes = opt_out_generator_get_processes();
     if(isset($arr['process']) && ctype_digit($arr['process']) && count($processes) > intval($arr['process'])) {
         return intval($arr['process']);
     } else {
@@ -106,13 +110,9 @@ function opt_out_generator_router_enqueue_scripts() {
 	wp_enqueue_style('select2-style', plugin_dir_url(__FILE__) . 'assets/select2.min.css');
 	wp_enqueue_script('opt-out-generator-script', plugin_dir_url(__FILE__) . 'assets/scripts.js', array('jquery'));	
 	wp_enqueue_style('opt-out-generator-style', plugin_dir_url(__FILE__) . 'assets/style.css');
-	
-	if(isset($_POST['gp_kasse'])) {
-		wp_add_inline_script('opt-out-generator-script', 'jQuery(document).ready(function($){ $(\'.select2.krankenkasse\').val(\'' . esc_js($_POST['gp_kasse']) . '\').trigger(\'change\'); if(\'' . esc_js($_POST['gp_kasse']) . '\' == \'other\') { $(\'.other.fields\').slideDown("slow"); } });');
-	}
 }
 
-add_action('wp_enqueue_scripts', 'opt_out_generator_router_enqueue_scripts');
+add_action('wp_enqueue_scripts', 'opt_out_generator_router_enqueue_scripts', 10);
 
 // Provide PDF as API, so that WordPress theme is not sent and corrupting the PDF
 
@@ -135,8 +135,8 @@ function opt_out_generator_init_admin_frontend() {
         return;
     }
     
-    $processes = get_option('opt_out_generator_processes', []);
-    $processId = opt_out_generator_get_process();
+    $processes = opt_out_generator_get_processes();
+    $processId = opt_out_generator_get_process_id();
 
     if($processId === '') {
         return;
@@ -158,11 +158,13 @@ function opt_out_generator_init_admin_frontend() {
     add_settings_field('opt_out_generator_threshold', 'Schwellwert für die Anzeige des Abfragen-Zählers', 'opt_out_generator_threshold_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
     add_settings_field('opt_out_generator_info_text', 'Text der "Info"-Seite', 'opt_out_generator_info_text_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
     add_settings_field('opt_out_generator_info_button', 'Button-Text auf der "Info"-Seite', 'opt_out_generator_info_button_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
+    add_settings_field('opt_out_generator_private_krankenkassen', 'Private Krankenkassen anzeigen?', 'opt_out_generator_private_krankenkassen_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
     add_settings_field('opt_out_generator_form_button', 'Button-Text auf der Formular-Seite', 'opt_out_generator_form_button_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
     add_settings_field('opt_out_generator_mail_subject', 'Betreff der versendeten Nachricht', 'opt_out_generator_mail_subject_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
     add_settings_field('opt_out_generator_mail_text', 'Text der versendeten Nachricht', 'opt_out_generator_mail_text_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
     add_settings_field('opt_out_generator_send_mail', 'Nachricht als Mail versenden?', 'opt_out_generator_send_mail_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
     add_settings_field('opt_out_generator_good_bye_text', 'Text der "Weitere Infos"-Seite', 'opt_out_generator_good_bye_text_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
+    add_settings_field('opt_out_generator_krankenkassen_hinweis_titel', 'Titel für krankenkassenspezifische Hinweise', 'opt_out_generator_krankenkassen_hinweis_titel_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
     add_settings_field('opt_out_generator_krankenkassen_hinweise', 'Krankenkassenspezifische Hinweise', 'opt_out_generator_krankenkassen_hinweise_render', 'opt_out_generator_options', 'opt_out_generator_options_section', $args);
 } 
 
@@ -172,24 +174,26 @@ function opt_out_generator_init_admin_create_process() {
         return;
     }
 
-    $processes = get_option('opt_out_generator_processes', []);
+    $processes = opt_out_generator_get_processes();
     $count = array_push($processes, [
         'name' => 'Opt-Out-Verfahren',
         'counter' => 0,
         'threshold' => 0,
         'info_text' => 'Lorem Ipsum.',
         'info_button' => 'Frage deine Daten ab!',
+        'private_krankenkassen' => 0,
         'form_button' => 'Anfrage erstellen',
         'mail_subject' => 'Lorem Ipsum.',
         'mail_text' => 'Lorem Ipsum.',
         'send_mail' => 0,
+        'good_bye_text' => 'Lorem Ipsum.',
+        'krankenkassen_hinweis_titel' => 'Hinweise zur Krankenkasse',
         'krankenkassen_hinweise' => [],
-        'good_bye_text' => 'Lorem Ipsum.'
     ]);
     update_option('opt_out_generator_processes', $processes);
 
     $processId = $count - 1;
-    wp_redirect(opt_out_generator_get_options_url([ 'process' => $processId ]));
+    wp_redirect(opt_out_generator_get_options_url([ 'process' => $processId, 'msg' => 'created' ]));
     exit;
 }
 
@@ -199,8 +203,8 @@ function opt_out_generator_init_admin_delete_process() {
         return;
     }
     
-    $processes = get_option('opt_out_generator_processes', []);
-    $processId = opt_out_generator_get_process();
+    $processes = opt_out_generator_get_processes();
+    $processId = opt_out_generator_get_process_id();
 
     if($processId === '') {
         return;
@@ -209,7 +213,7 @@ function opt_out_generator_init_admin_delete_process() {
     array_splice($processes, $processId, 1);
     update_option('opt_out_generator_processes', $processes);
 
-    wp_redirect(opt_out_generator_get_options_url());
+    wp_redirect(opt_out_generator_get_options_url([ 'msg' => 'deleted' ]));
     exit;
 }
 
@@ -219,7 +223,7 @@ function opt_out_generator_init_admin_export_processes() {
         return;
     }
     
-    $processes = get_option('opt_out_generator_processes', []);
+    $processes = opt_out_generator_get_processes();
 
     header('Content-Disposition: attachment; filename="opt-out-generator-export.json"');
     echo json_encode($processes, JSON_PRETTY_PRINT);
@@ -233,7 +237,7 @@ function opt_out_generator_init_admin_import_processes() {
         return;
     }
     
-    $processes = get_option('opt_out_generator_processes', []);
+    $processes = opt_out_generator_get_processes();
 
     $fileContents = file_get_contents($_FILES['import-file']['tmp_name']);
     $newProcesses = json_decode($fileContents, true);
@@ -241,12 +245,12 @@ function opt_out_generator_init_admin_import_processes() {
     array_push($processes, ...$newProcesses);
     update_option('opt_out_generator_processes', $processes);
 
-    $processId = opt_out_generator_get_process();
+    $processId = opt_out_generator_get_process_id();
 
     if($processId === '') {
-        wp_redirect(opt_out_generator_get_options_url());
+        wp_redirect(opt_out_generator_get_options_url([ 'msg' => 'imported' ]));
     } else {
-        wp_redirect(opt_out_generator_get_options_url([ 'process' => $processId ]));
+        wp_redirect(opt_out_generator_get_options_url([ 'process' => $processId, 'msg' => 'imported' ]));
     }
     exit;
 }
@@ -257,8 +261,8 @@ function opt_out_generator_init_admin_backend() {
         return;
     }
 
-    $processes = get_option('opt_out_generator_processes', []);
-    $processId = opt_out_generator_get_process();
+    $processes = opt_out_generator_get_processes();
+    $processId = opt_out_generator_get_process_id();
 
     if($processId === '') {
         return;
@@ -267,13 +271,13 @@ function opt_out_generator_init_admin_backend() {
     // Store options, redirect
     // Note: we do not use register_setting here, as we'd like to store the options in a JSON construct for several reasons
 
-    foreach(['name', 'info_text', 'info_button', 'form_button', 'mail_subject', 'mail_text', 'good_bye_text'] as $property) {
+    foreach(['name', 'info_text', 'info_button', 'form_button', 'mail_subject', 'mail_text', 'good_bye_text', 'krankenkassen_hinweis_titel'] as $property) {
         if(isset($_POST['opt_out_generator_' . $property])) {
             $processes[$processId][$property] = $_POST['opt_out_generator_' . $property];
         }
     }
-
-    foreach(['threshold', 'send_mail'] as $property) {
+    
+    foreach(['threshold', 'send_mail', 'private_krankenkassen'] as $property) {
         if(isset($_POST['opt_out_generator_' . $property]) && ctype_digit($_POST['opt_out_generator_' . $property])) {
             $processes[$processId][$property] = intval($_POST['opt_out_generator_' . $property]);
         } else {
@@ -295,7 +299,7 @@ function opt_out_generator_init_admin_backend() {
 
     update_option('opt_out_generator_processes', $processes);
 
-    wp_redirect(opt_out_generator_get_options_url([ 'process' => $processId ]));
+    wp_redirect(opt_out_generator_get_options_url([ 'process' => $processId, 'msg' => 'saved' ]));
     exit;
 } 
 add_action('admin_init', 'opt_out_generator_init_admin_create_process');
@@ -312,11 +316,25 @@ add_action('admin_menu', 'opt_out_generator_add_admin_menu');
 
 function opt_out_generator_options_page() {
 
-    $processes = get_option('opt_out_generator_processes', []);
-    $processId = opt_out_generator_get_process();
+    $processes = opt_out_generator_get_processes();
+    $processId = opt_out_generator_get_process_id();
     
 ?><div class="wrap">
 	<h1>Einstellungen › opt-out-generator</h1>
+
+    <?php
+    $messages = [
+        'saved' => 'Das Verfahren wurde erfolgreich gespeichert.',
+        'created' => 'Das Verfahren wurde erfolgreich erstellt.',
+        'deleted' => 'Das Verfahren wurde erfolgreich gelöscht.',
+        'imported' => 'Das oder die Verfahren wurden erfolgreich importiert.'
+    ];
+
+    if(isset($_GET['msg']) && in_array($_GET['msg'], array_keys($messages))) {
+        echo '<div class="notice notice-success is-dismissible notice-alt"><p>' . $messages[$_GET['msg']] . '</p></div>';        
+    }
+    ?>
+
     <h2>Liste der Opt-Out-Verfahren</h2>
 
     <form action="<?=esc_url(opt_out_generator_get_options_url([ 'process' => $processId, 'action' => 'import_processes' ]))?>" method="POST" enctype="multipart/form-data">
@@ -362,7 +380,7 @@ function opt_out_generator_options_page() {
             </tbody>
         </table>
     </form>
-    <form action="options.php?process=<?=opt_out_generator_get_process()?>" method="post">
+    <form action="options.php?process=<?=opt_out_generator_get_process_id()?>" method="post">
         <?php settings_fields('opt_out_generator_options_section'); ?>
         <?php do_settings_sections('opt_out_generator_options'); ?>
     
@@ -385,7 +403,7 @@ function opt_out_generator_enqueue_admin_scripts($hook) {
 	wp_enqueue_script('opt-out-generator-admin-script', plugin_dir_url(__FILE__) . 'assets/admin.js', array('jquery'));	
 	wp_enqueue_style('opt-out-generator-admin-style', plugin_dir_url(__FILE__) . 'assets/admin.css');
 }
-add_action('admin_enqueue_scripts', 'opt_out_generator_enqueue_admin_scripts');
+add_action('admin_enqueue_scripts', 'opt_out_generator_enqueue_admin_scripts', 10);
 
 function opt_out_generator_options_section() {}
 
@@ -416,6 +434,11 @@ function opt_out_generator_info_text_render($args) {
 
 function opt_out_generator_info_button_render($args) {
 	echo '<input name="opt_out_generator_info_button" type="text" value="' . esc_attr($args['process']['info_button']) . '"  />';
+}
+
+function opt_out_generator_private_krankenkassen_render($args) {
+    echo '<input type="checkbox" id="opt_out_generator_private_krankenkassen" name="opt_out_generator_private_krankenkassen" value="1"' . checked(1, $args['process']['private_krankenkassen'], false) . '/>' .
+    '<label for="opt_out_generator_private_krankenkassen">Sollen im Frontend private Krankenkassen angezeigt werden? Falls diese Option deaktiviert ist, können die krankenkassenspezifische Hinweise weiter unten auf dieser Seite für private Krankenkassen ebenfalls nicht konfiguriert werden.</label>';
 }
 
 function opt_out_generator_form_button_render($args) {
@@ -464,6 +487,11 @@ function opt_out_generator_good_bye_text_render($args) {
     echo '<p>Dieses Textfeld unterstützt <a href="https://codex.wordpress.org/Shortcode" target="_blank">Shortcodes</a>.</p>';
 }
 
+function opt_out_generator_krankenkassen_hinweis_titel_render($args) {
+    echo '<input name="opt_out_generator_krankenkassen_hinweis_titel" type="text" value="' . esc_attr($args['process']['krankenkassen_hinweis_titel']) . '" style="width: 100%;" />
+    <p>Der Titel wird au der Ergebnisseite über dem krankenkassenspezifischen Hinweis angezeigt, falls einer für die ausgewählte Krankenkasse eingestellt ist.</p>';
+}
+
 function opt_out_generator_krankenkassen_hinweise_render($args) {
     ?>
     <select class="select2 krankenkasse">
@@ -473,7 +501,7 @@ function opt_out_generator_krankenkassen_hinweise_render($args) {
             $krankenkassenMitHinweisen = array_keys(array_filter($hinweise));
             require_once __DIR__ . '/includes/krankenkassen.php';
             $opt_out_generator_krankenkassen = opt_out_generator_Krankenkassenliste::getInstance();
-            $opt_out_generator_krankenkassen->printOptions($krankenkassenMitHinweisen);
+            $opt_out_generator_krankenkassen->printOptions($args['process']['private_krankenkassen'], $krankenkassenMitHinweisen);
         ?>
         <option value="other">Andere...</option>
     </select>

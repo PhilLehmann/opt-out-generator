@@ -4,12 +4,12 @@ defined('ABSPATH') or die('');
 
 function opt_out_generator_pdf() {
 
-    define('OPT_OUT_GENERATOR_PROCESS_ID', opt_out_generator_get_process($_POST));
+    define('OPT_OUT_GENERATOR_PROCESS_ID', opt_out_generator_get_process_id($_POST));
     if(OPT_OUT_GENERATOR_PROCESS_ID == '') {
         die();
     }
     
-    $processes = get_option('opt_out_generator_processes', []);
+    $processes = opt_out_generator_get_processes();
     $process = $processes[OPT_OUT_GENERATOR_PROCESS_ID];
 
 	require_once __DIR__ . '/../libs/tcpdf/tcpdf.php';

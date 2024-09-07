@@ -7,7 +7,7 @@ jQuery(document).ready(function($) {
 
     // process deletion
     $('.button-danger').click(function() {
-        return confirm("Möchten Sie dieses Opt-Out-Verfahren wirklich endgültig löschen?");
+        return confirm('Möchten Sie dieses Opt-Out-Verfahren wirklich endgültig löschen?');
     })
 
     // process import
@@ -18,7 +18,7 @@ jQuery(document).ready(function($) {
     // krankenkassen-hinweise
     $krankenkassenSelector = $('.select2.krankenkasse');
 	$krankenkassenSelector.select2({
-		placeholder: "Wähle eine Krankenkasse aus, um den Hinweis zu editieren...",
+		placeholder: 'Wähle eine Krankenkasse aus, um den Hinweis zu editieren...',
         templateResult: function(data, container) {
             if (data.element) {
                 $(container).addClass($(data.element).attr('class'));
@@ -29,10 +29,10 @@ jQuery(document).ready(function($) {
         var krankenkasse = e.params.data.id;
         var alleHinweise = $('.krankenkassen-hinweis');
         if(krankenkasse) {
-            $($.grep(alleHinweise, (el) => $(el).data('name') != krankenkasse)).slideUp("slow");
-            $('.krankenkassen-hinweis[data-name="' + krankenkasse + '"]').slideDown("slow");		
+            $($.grep(alleHinweise, (el) => $(el).data('name') != krankenkasse)).slideUp('slow');
+            $('.krankenkassen-hinweis[data-name="' + krankenkasse + '"]').slideDown('slow');		
         } else {
-            alleHinweise.slideUp("slow");
+            alleHinweise.slideUp('slow');
         }
 	});
 
@@ -52,4 +52,11 @@ jQuery(document).ready(function($) {
         $('.krankenkassen-name').hide();
         $krankenkassenSelector.val('');
     });
+    
+    // messages should be shown only once
+    const url = new URL(window.location.href);
+    if(url.searchParams.has('msg')) {
+        url.searchParams.delete('msg');
+        window.history.replaceState(null, '', url.href);
+    }
 });

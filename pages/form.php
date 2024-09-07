@@ -3,7 +3,7 @@
 defined('ABSPATH') or die('');
 defined('OPT_OUT_GENERATOR_PROCESS_ID') or die('');
 
-$processes = get_option('opt_out_generator_processes', []);
+$processes = opt_out_generator_get_processes();
 $process = $processes[OPT_OUT_GENERATOR_PROCESS_ID];
 
 require_once __DIR__ . '/../includes/validator.php';
@@ -28,10 +28,6 @@ function opt_out_generator_getValue($name) {
 	return $html;
 }
 
-if(isset($_POST['gp_kasse'])) {
-	wp_add_inline_script('opt_out_generator-script', 'jQuery(document).ready(function($){ $(\'.select2.krankenkasse\').val(\'' . esc_js($_POST['gp_kasse']) . '\').trigger("change"); });');
-}
-
 ?>
 <div class="opt-out-generator form">
 	<form action="?gp=result" method="post">
@@ -40,6 +36,13 @@ if(isset($_POST['gp_kasse'])) {
 				echo '<div class="error">Da ist etwas schiefgelaufen.</div>';
 			}
 		?>
+        <div class="opt-out-generator-hinweis hidden">
+            Es gibt gespeicherte Formulardaten für <i class="name"></i>. Möchten Sie diese verwenden?
+            <div>
+                <a class="button button-yes"><div class="checkmark"></div> Ja</a>
+                <a class="button button-no"><div class="crossmark"></div> Nein</a>
+            </div>
+        </div>
 		
 		Name: <?=opt_out_generator_getValue("gp_name")?><br/>
 		Straße: <?=opt_out_generator_getValue("gp_strasse")?><br/>
@@ -54,7 +57,7 @@ if(isset($_POST['gp_kasse'])) {
 			<?php
 				require_once __DIR__ . '/../includes/krankenkassen.php';
 				$opt_out_generator_krankenkassen = opt_out_generator_Krankenkassenliste::getInstance();
-				$opt_out_generator_krankenkassen->printOptions();
+				$opt_out_generator_krankenkassen->printOptions($process['private_krankenkassen']);
 			?>
 			<option value="other">Andere...</option>
 		</select>
@@ -76,3 +79,6 @@ if(isset($_POST['gp_kasse'])) {
 	<p>
 	</p>
 </div>
+<script type="text/javascript">
+    jQuery(document).ready(function($){ $('.select2.krankenkasse').val('<?=esc_js($_POST['gp_kasse']) ?>').trigger("change"); });
+</script>
