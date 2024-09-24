@@ -45,7 +45,7 @@ function opt_out_generator_getValue($name) {
         </div>
 		
 		Name: <?=opt_out_generator_getValue("gp_name")?><br/>
-		Straße: <?=opt_out_generator_getValue("gp_strasse")?><br/>
+		Straße &amp; Hausnummer: <?=opt_out_generator_getValue("gp_strasse")?><br/>
 		Postleitzahl: <?=opt_out_generator_getValue("gp_plz")?><br/>
 		Ort: <?=opt_out_generator_getValue("gp_ort")?><br/>
 		
@@ -64,7 +64,7 @@ function opt_out_generator_getValue($name) {
 		<?=opt_out_generator_getError("gp_kasse")?><br/>
 		<div class="other fields hidden">
 			Name: <?=opt_out_generator_getValue("gp_kk_name")?><br/>
-			Straße: <?=opt_out_generator_getValue("gp_kk_strasse")?><br/>
+			Straße &amp; Hausnummer: <?=opt_out_generator_getValue("gp_kk_strasse")?><br/>
 			Postleitzahl: <?=opt_out_generator_getValue("gp_kk_plz")?><br/>
 			Ort: <?=opt_out_generator_getValue("gp_kk_ort")?><br/>
 			E-Mail: <?=opt_out_generator_getValue("gp_kk_mail")?><br/>
