@@ -20,7 +20,7 @@ class opt_out_generator_Validator {
 		'gp_plz' => array('not_empty', 'plz'),
 		'gp_ort' => array('not_empty'),
 		'gp_kasse' => array('not_empty', 'krankenkasse'),
-		'gp_nummer' => array('not_empty', 'versichertennummer')
+		'gp_versichertennummer' => array('not_empty', 'versichertennummer')
 	);
 	
 	// Used when "other" health insurance is picked
@@ -39,8 +39,8 @@ class opt_out_generator_Validator {
 		'gp_kk_plz' => array('not_empty', 'plz'),
 		'gp_kk_ort' => array('not_empty')
 	);
-	
-	// validation functions
+
+    // validation functions
 	private static function is_not_empty($value) {
 		$trimmedText = trim($value);
 		return $trimmedText !== '';
@@ -155,6 +155,32 @@ class opt_out_generator_Validator {
 				self::$errors = self::validateRules($_POST, self::$otherKKAddressValidation, self::$errors);
 			}
 		}
+
+        if(isset($_GET['tp'])) {
+            self::$errors = self::validateRules($_POST, [
+                'gp_vertretungsart' => array('not_empty'),
+                'vertretung1_name' => array('not_empty')
+            ], self::$errors);
+            
+			if(!isset($_POST['vertretung1_wohnort_wie_gp'])) {
+                self::$errors = self::validateRules($_POST, [
+                    'vertretung1_strasse' => array('not_empty'),
+                    'vertretung1_plz' => array('not_empty', 'plz'),
+                    'vertretung1_ort' => array('not_empty')
+                ], self::$errors);
+            }
+
+            if(self::is_not_empty($_POST['vertretung2_name'])) {
+                if(!isset($_POST['vertretung2_wohnort_wie_gp'])) {
+                    self::$errors = self::validateRules($_POST, [
+                        'vertretung2_strasse' => array('not_empty'),
+                        'vertretung2_plz' => array('not_empty', 'plz'),
+                        'vertretung2_ort' => array('not_empty')
+                    ], self::$errors);
+                }
+            }
+        }
+
 		return self::$errors;
 	}
 	

@@ -1,6 +1,6 @@
 
 .opt-out-generator .select2 {
-	style: block;
+	display: block;
 	width: 100%;
 }
 .opt-out-generator form {
@@ -8,6 +8,27 @@
 }
 .opt-out-generator .hidden {
 	display: none;
+}
+
+.oog-third-party-selector {
+    border-bottom: 1px solid #aaa;
+    padding-left: 10px;
+}
+.oog-third-party-selector a {
+    padding: 5px;
+    border: 1px solid #aaa;
+    border-bottom: none;
+    margin-right: 10px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    text-decoration: none;
+    transition: background-color .3s ease-in-out;
+}
+.oog-third-party-selector a:hover {
+    background-color: #eee;
+}
+.oog-third-party-selector a.selected {
+    font-weight: bold;
 }
 
 .opt-out-generator input.error {
@@ -35,6 +56,16 @@
     margin: 1rem -1rem;
     padding: 1rem 1rem;
     border-radius: .3rem;
+}
+.opt-out-generator div.opt-out-generator-hinweis .button {
+    background-color: white;
+    color: black;
+    border-radius: .3em;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+.opt-out-generator div.opt-out-generator-hinweis a {
+	color: #EDDD26;
 }
 .opt-out-generator div.opt-out-generator-hinweis > p:first-child {
     margin-top: 0;

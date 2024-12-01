@@ -13,7 +13,7 @@ $process = $processes[OPT_OUT_GENERATOR_PROCESS_ID];
 	<div class="actions">
         <?php
             if($_SERVER['REQUEST_METHOD'] === 'POST') {
-                echo opt_out_generator_get_post_form('action="?gp=result"', '<input class="submit button" type="button" value="&lt; Zurück" />');
+                echo opt_out_generator_get_post_form('action="?gp=result' . (isset($_GET['tp']) ? '&tp=1' : '') . '"', '<input class="submit button" type="button" value="&lt; Zurück" />');
             }
         ?>
     </div>

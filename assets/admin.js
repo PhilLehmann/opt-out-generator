@@ -1,5 +1,9 @@
-
 jQuery(document).ready(function($) {
+    // form storage selection
+    $('select[name="opt_out_generator_form_storage"]').on('change', function() {
+       this.form.submit();
+    });
+
     // process selection
     $('select[name="process"]').on('change', function() {
        this.form.submit();
@@ -15,6 +19,41 @@ jQuery(document).ready(function($) {
         $('#import-file-input').click();
     });
     
+    // opt-out für dritte
+    $thirdPartySelector = $('select[name="opt_out_generator_third_party"]');
+    $regularTextRow = $('#wp-opt_out_generator_mail_text-wrap').parent().parent();
+    $optOutTextRow = $('#wp-opt_out_generator_third_party_mail_text-wrap').parent().parent();
+    $thirdPartyInfoNotice = $('.opt_out_third_party_info_notice');
+    var thirdParty = $thirdPartySelector.find(":selected").val();
+    if(thirdParty == 'no') {
+        $optOutTextRow.slideUp('slow');
+    } else if(thirdParty == 'yes') {
+        $regularTextRow.slideUp('slow');
+    }
+    if(thirdParty == 'combo') {
+        $thirdPartyInfoNotice.slideDown('slow');
+    } else {
+        $thirdPartyInfoNotice.slideUp('slow');
+    }
+    $thirdPartySelector.on('change', function() {
+        var thirdParty = $thirdPartySelector.find(":selected").val();
+        if(thirdParty == 'no') {
+            $optOutTextRow.slideUp('slow');
+            $regularTextRow.slideDown('slow');
+        } else if(thirdParty == 'yes') {
+            $optOutTextRow.slideDown('slow');
+            $regularTextRow.slideUp('slow');
+        } else {
+            $optOutTextRow.slideDown('slow');
+            $regularTextRow.slideDown('slow');
+        }
+        if(thirdParty == 'combo') {
+            $thirdPartyInfoNotice.slideDown('slow');
+        } else {
+            $thirdPartyInfoNotice.slideUp('slow');
+        }
+     });
+
     // krankenkassen-hinweise
     $krankenkassenSelector = $('.select2.krankenkasse');
 	$krankenkassenSelector.select2({

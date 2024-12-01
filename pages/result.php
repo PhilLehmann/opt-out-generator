@@ -3,6 +3,7 @@
 defined('ABSPATH') or die('');
 defined('OPT_OUT_GENERATOR_PROCESS_ID') or die('');
 
+$formStorage = opt_out_generator_get_form_storage();
 $processes = opt_out_generator_get_processes();
 $process = $processes[OPT_OUT_GENERATOR_PROCESS_ID];
 
@@ -45,7 +46,7 @@ if($showResult) {
 	</p>
 
 	<div class="mail-text">
-		<?=wpautop(opt_out_generator_get_mail_text($_POST))?>
+		<?=wpautop(opt_out_generator_get_mail_text_from_post())?>
 	</div>
     <?php
     if(isset($process['krankenkassen_hinweise'][$krankenkasse->name]) && trim($process['krankenkassen_hinweise'][$krankenkasse->name]) !== '') {
@@ -61,7 +62,7 @@ if($showResult) {
 
 	<div class="actions">
 		<?php
-		echo opt_out_generator_get_post_form('action="?gp=form"', '<input class="submit button" type="button" value="&lt; Zurück" />');
+		echo opt_out_generator_get_post_form('action="?gp=form' . (isset($_GET['tp']) ? '&tp=1' : '') . '"', '<input class="submit button" type="button" value="&lt; Zurück" />');
 		if($krankenkasse->canSendLetter()) {
 			echo opt_out_generator_get_post_form('target="_blank" action="' . get_site_url() . '/wp-json/opt-out-generator/pdf"', 
                                                  '<input type="hidden" name="process" value="' . OPT_OUT_GENERATOR_PROCESS_ID . '" />
@@ -72,13 +73,24 @@ if($showResult) {
 		<form><input class="mail button" type="button" value="Mail öffnen" /></form>
 		<?php
 		}
-		echo opt_out_generator_get_post_form('action="?gp=good-bye"', '<input class="submit button" type="button" value="Weitere Infos &gt;" />');
+		echo opt_out_generator_get_post_form('action="?gp=good-bye' . (isset($_GET['tp']) ? '&tp=1' : '') . '"', '<input class="submit button" type="button" value="Weitere Infos &gt;" />');
 		?>
 	</div>
 </div>
 <script type="text/javascript">
-    var formData = <?=json_encode($_POST)?>;
-    localStorage.setItem("opt-out-generator-form-data", JSON.stringify(formData));
+    <?php
+        if($formStorage == 'session' || $formStorage == 'local') {
+            echo 'var formData = ' . json_encode($_POST) . ';';
+            echo $formStorage . 'Storage.setItem("opt-out-generator-form-data", JSON.stringify(formData));';
+        }
+
+        if($formStorage != 'session') {
+            echo 'sessionStorage.removeItem("opt-out-generator-form-data");';
+        }
+        if($formStorage != 'local') {
+            echo 'localStorage.removeItem("opt-out-generator-form-data");';
+        }
+    ?>
 </script>
 
 <?php

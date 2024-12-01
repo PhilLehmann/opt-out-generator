@@ -42,10 +42,11 @@ function opt_out_generator_pdf() {
     $gp_ort = esc_html($_POST['gp_ort']);
 
     $html = <<<TXT
-	<br/>
-	<br/>
-	<br/>
-	<br/>
+    <div style="text-align: right;">
+        <b>{$gp_name}</b><br/>
+        {$gp_strasse}<br/>
+        {$gp_plz} {$gp_ort}
+    </div>
 	<br/>
 	<br/>
 	<br/>
@@ -63,7 +64,7 @@ function opt_out_generator_pdf() {
 	<br/>
 TXT;
 	
-	$html .= wpautop(opt_out_generator_get_mail_text($_POST));
+	$html .= wpautop(opt_out_generator_get_mail_text_from_post());
 
     $pdf->writeHTML($html, true, false, true, false, '');
     
