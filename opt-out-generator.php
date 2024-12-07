@@ -75,7 +75,7 @@ function opt_out_generator_get_mail_text_from_post() {
             wp_die('Einer der Parameter "name", "strasse", "plz", "ort", fehlt für vertretung1 oder 2.');
         }
 
-        $tokens['[vertretungsart]'] = $_POST['gp_vertretungsart'] == 'betreuung' ? 'Betreuung (gesetzliche Vertretung)' : 'Eltern (gesetzliche Vertretung)';
+        $tokens['[vertretungsart]'] = $_POST['gp_vertretungsart'] == 'betreuung' ? 'gesetzlicher Betreuung' : 'Elternschaft';
 
         $tokens['[vertretung1_name]'] = esc_html($_POST['vertretung1_name']);
         $tokens['[vertretung1_strasse]'] = esc_html($_POST[$vertretung1WohnortWieGp ?  'gp_strasse' : 'vertretung1_strasse']);
@@ -583,7 +583,7 @@ function opt_out_generator_third_party_mail_text_render($args) {
 		<li><code>[ort]</code> für den Ort des Versicherten</li>
 		<li><code>[kasse]</code> für die Krankenkasse des Versicherten</li>
 		<li><code>[versichertennummer]</code> für die Versichertennummer</li>
-		<li><code>[vertretungsart]</code> für die Art der Vertretung, z.B. Eltern (gesetzliche Vertretung) oder Betreuung (gesetzliche Vertretung)</li>
+		<li><code>[vertretungsart]</code> für die Art der Vertretung, z.B. "Elternschaft" oder "gesetzlicher Betreuung"</li>
 		<li><code>[vertretung1_name]</code>, <code>[vertretung1_strasse]</code>, <code>[vertretung1_plz]</code> und <code>[vertretung1_ort]</code> für die Daten der ersten Vertretung</li>
 		<li><code>[vertretung2_name]</code>, <code>[vertretung2_strasse]</code>, <code>[vertretung2_plz]</code> und <code>[vertretung2_ort]</code> für die Daten der zweiten Vertretung, falls vorhanden</li>
 	</ul>

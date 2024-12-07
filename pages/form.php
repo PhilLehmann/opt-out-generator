@@ -84,28 +84,28 @@ function opt_out_generator_getValue($name) {
         ?>
                 <h3>Angaben zur Vertretung</h3>
 
-                Art der Vertretung: 
+                Die Vertretung besteht aufgrund von... 
                 <select name="gp_vertretungsart">
-                    <option value="eltern" <?=isset($_POST['gp_vertretungsart']) && $_POST['gp_vertretungsart'] == 'eltern' ? 'selected="selected"' : '' ?>>Eltern (gesetzliche Vertretung)</option>';
-                    <option value="betreuung" <?=isset($_POST['gp_vertretungsart']) && $_POST['gp_vertretungsart'] == 'betreuung' ? 'selected="selected"' : '' ?>>Betreuung (gesetzliche Vertretung)</option>';
+                    <option value="eltern" <?=isset($_POST['gp_vertretungsart']) && $_POST['gp_vertretungsart'] == 'eltern' ? 'selected="selected"' : '' ?>>Elternschaft</option>';
+                    <option value="betreuung" <?=isset($_POST['gp_vertretungsart']) && $_POST['gp_vertretungsart'] == 'betreuung' ? 'selected="selected"' : '' ?>>gesetzlicher Betreuung</option>';
                 </select>
 
-                <h3>Person 1</h3>
+                <h3>Vertreter 1</h3>
 
-                Name: <?=opt_out_generator_getValue("vertretung1_name")?><br/>
                 <input type="checkbox" id="vertretung1_wohnort_wie_gp" name="vertretung1_wohnort_wie_gp" value="1" <?=checked(isset($_POST['vertretung1_wohnort_wie_gp']) && $_POST['vertretung1_wohnort_wie_gp'] == '1', true, false)?>/>
-                <label for="vertretung1_wohnort_wie_gp">Adresse wie versicherte Persion?</label><br/>
+                <label for="vertretung1_wohnort_wie_gp">Adresse wie versicherte Person?</label><br/>
+                Name: <?=opt_out_generator_getValue("vertretung1_name")?><br/>
                 <div class="vertretung1 fields hidden">
                     Straße &amp; Hausnummer: <?=opt_out_generator_getValue("vertretung1_strasse")?><br/>
                     Postleitzahl: <?=opt_out_generator_getValue("vertretung1_plz")?><br/>
                     Ort: <?=opt_out_generator_getValue("vertretung1_ort")?><br/>
                 </div>
                 
-                <h3>ggf. Person 2</h3>
+                <h3>ggf. Vertreter 2</h3>
 
-                Name: <?=opt_out_generator_getValue("vertretung2_name")?><br/>
                 <input type="checkbox" id="vertretung2_wohnort_wie_gp" name="vertretung2_wohnort_wie_gp" value="1" <?=checked(isset($_POST['vertretung2_wohnort_wie_gp']) && $_POST['vertretung2_wohnort_wie_gp'] == '1', true, false)?>/>
-                <label for="vertretung2_wohnort_wie_gp">Adresse wie versicherte Persion?</label><br/>
+                <label for="vertretung2_wohnort_wie_gp">Adresse wie versicherte Person?</label><br/>
+                Name: <?=opt_out_generator_getValue("vertretung2_name")?><br/>
                 <div class="vertretung2 fields hidden">
                     Straße &amp; Hausnummer: <?=opt_out_generator_getValue("vertretung2_strasse")?><br/>
                     Postleitzahl: <?=opt_out_generator_getValue("vertretung2_plz")?><br/>
