@@ -41,14 +41,15 @@ function opt_out_generator_pdf() {
     $gp_plz = esc_html($_POST['gp_plz']);
     $gp_ort = esc_html($_POST['gp_ort']);
 
+	$day = date('d.m.Y', time());
+
     $html = <<<TXT
     <div style="text-align: right;">
         <b>{$gp_name}</b><br/>
         {$gp_strasse}<br/>
-        {$gp_plz} {$gp_ort}
-    </div>
-	<br/>
-	<br/>
+        {$gp_plz} {$gp_ort}<br/>
+		<br/>
+        am {$day}</div>
 	<br/>
 	<font size="8">{$gp_name} - {$gp_strasse} - {$gp_plz} {$gp_ort}<br/></font><br/>
 	<b>{$krankenkasse->name}</b><br/>
